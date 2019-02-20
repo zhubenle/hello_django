@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% extends 'base.html' %}
+    {% load staticfiles %}
+    {% block block_title %}
+        <link rel="stylesheet" href="{% static 'datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+        <title>用户列表</title>
+    {% endblock %}
+</head>
+<body>
+{% block block_content %}
+    <section class="content-header">
+        <h1>
+            User List
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{% url 'url-index' %}"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="#">Backend</a></li>
+            <li class="active">User list</li>
+        </ol>
+    </section>
+
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box table-responsive">
+                    <div class="box-header">
+                    </div>
+                    <div class="box-body">
+                        <table id="table_users" class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>username</th>
+                                <th>real_name</th>
+                                <th>phone</th>
+                                <th>email</th>
+                                <th>last_login_ip</th>
+                                <th>last_login_time</th>
+                                <th>update_time</th>
+                                <th>create_time</th>
+                                <th>del_status</th>
+                                <th>operate</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block block_script %}
+    <script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script type="text/javascript">
+        $(function () {
+            let csrfToken = $("[name=csrfmiddlewaretoken]").val();
+
+            let tableUsers = $('#table_users').DataTable({
+                serverSide: true,
+                processing: true,
+                searching: true,
+                autoWidth: false,
+                language: {
+                    lengthMenu: 'Show _MENU_'
+                },
+                searchDelay: 2000,
+                ajax: {
+                    url: '{% url 'url-backend-ajax-users' %}',
+                    type: 'POST',
+                    data: {'csrfmiddlewaretoken': csrfToken},
+                    dataFilter: function (resp) {
+                        resp = $.parseJSON(resp);
+                        if (resp.code === 10000) {
+                            return JSON.stringify(resp.data);
+                        }
+                        return JSON.stringify({'error': resp.msg});
+                    }
+                },
+                createdRow: function (tr, data, dataIndex, tds) {
+                    $(tr).append('<td><button class="btn btn-primary btn-sm">编辑</></td>')
+                },
+                columns: [
+                    {data: 'id'},
+                    {data: 'username'},
+                    {data: 'real_name'},
+                    {data: 'phone'},
+                    {data: 'email'},
+                    {data: 'last_login_ip', searchable: false},
+                    {data: 'last_login_time', searchable: false},
+                    {data: 'update_time', searchable: false},
+                    {data: 'create_time', searchable: false},
+                    {
+                        data: 'del_status',
+                        searchable: false,
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            let style = cellData ? 'label-info' : 'label-danger';
+                            $(td).html('<lable class="label ' + style + '">' + cellData + '</lable>');
+                        }
+                    }
+                ],
+            });
+        })
+    </script>
+{% endblock %}
+</body>
+</html>

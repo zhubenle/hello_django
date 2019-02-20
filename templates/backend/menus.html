@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% extends 'base.html' %}
+    {% load staticfiles %}
+    {% block block_title %}
+        <title>菜单列表</title>
+    {% endblock %}
+</head>
+<body>
+{% block block_content %}
+    <section class="content-header">
+        <h1>
+            Menu List
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="#">Backend</a></li>
+            <li class="active">Menu list</li>
+        </ol>
+    </section>
+
+    <section class="content">
+
+    </section>
+{% endblock %}
+</body>
+</html>

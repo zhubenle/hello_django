@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Login</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    {% load staticfiles %}
+    <link rel="icon" href="{% static 'custom/img/icon.png' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'Ionicons/css/ionicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/AdminLTE.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/iCheck/square/blue.css' %}">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+    <link rel="stylesheet" href="{% static 'dist/css/google-fonts.css' %}">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box" style="margin: 0 auto;padding-top: 7%;">
+    <div class="login-logo">
+        <a href="{% url 'url-login' %}"><b>Admin</b>LTE</a>
+    </div>
+    <div class="login-box-body">
+        <p class="login-box-msg" id="p_msg" style="color: #ff480b;">{{ err.code.msg|default:'' }}&nbsp;</p>
+
+        <form action="{% url 'url-login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group has-feedback">
+                <input type="text" id="input_username" name="username" class="form-control" placeholder="username">
+                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input type="password" id="input_password" name="password" class="form-control" placeholder="password">
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div class="row">
+                <div class="col-xs-8">
+                    <div class="checkbox icheck">
+                        <input id="label_remember_me" name="remember_me" type="checkbox">
+                        <label for="label_remember_me">remember me</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="button" id="btn_submit" class="btn btn-primary btn-block btn-flat">Sign in</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="{% static 'jquery/jquery.min.js' %}"></script>
+<script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'plugins/iCheck/icheck.min.js' %}"></script>
+<script>
+    $(function () {
+        $('#label_remember_me').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%'
+        });
+
+        let input_username = $('#input_username');
+        let input_password = $('#input_password');
+        let btn_submit = $('#btn_submit');
+        let p_msg = $('#p_msg');
+
+        $('input').on('focus', function () {
+            $(this).parent('div').removeClass('has-error');
+            p_msg.html('&nbsp;');
+        });
+       
+        btn_submit.on('click', function () {
+            if (!input_username.val()) {
+                input_username.parent('div').addClass('has-error');
+                p_msg.html('username can not be empty');
+                return;
+            }
+            if (!input_password.val()) {
+                input_password.parent('div').addClass('has-error');
+                p_msg.html('password can not be empty');
+                return;
+            }
+            $(this).parents('form').submit();
+        })
+    });
+</script>
+</body>
+</html>
