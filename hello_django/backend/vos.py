@@ -50,6 +50,9 @@ class MenuVO:
         self.icon_class = menu.icon_class if menu else kwargs.get('icon_class')
         self.show = menu.show if menu else kwargs.get('show')
         self.sort = menu.sort if menu else kwargs.get('sort')
+        self.update_time = menu.update_time if menu else kwargs.get('update_time')
+        self.create_time = menu.create_time if menu else kwargs.get('create_time')
+        self.del_status = menu.del_status if menu else kwargs.get('del_status')
 
     def __str__(self):
         return 'MenuVO{{id={}, parent_id={}, title={}, url={}, icon_class={}, show={}}}' \

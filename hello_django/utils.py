@@ -98,6 +98,13 @@ def objs_to_json(objs, convert_func=None):
     return json.dumps(objs_to_dicts(objs, convert_func), ensure_ascii=False, cls=CustomerEncoder)
 
 
+bool_dict = {'true': True, 'false': False, 'True': True, 'False': False}
+
+
+def str_to_bool(val: str):
+    return bool_dict.get(val, val)
+
+
 def format_page_data(paginator: Paginator, params, convert_func=None):
     """
     将数据格式化符合DataTables前端插件分页的格式

@@ -1,7 +1,10 @@
 from builtins import dict
+from functools import reduce
 
+from django.db.models import Q
 from django.http import HttpRequest
 
+from hello_django import utils
 from hello_django.error import LoginError
 from hello_django.response import CODE_10001
 
@@ -25,8 +28,8 @@ class BaseDataTablesRequestParam:
         return tuple(map(lambda order: (order.dir.replace('asc', '').replace('desc', '-') +
                                         self.columns[order.column].data), self.orders))
 
-    def get_search(self) -> dict:
-        """获取搜索字段元组"""
+    def get_search_q(self):
+        """获取搜索条件Q()"""
         search_dict = {}
         for col in self.columns:
             sv: str = col.search_value if col.search_value else self.search_value
@@ -36,7 +39,10 @@ class BaseDataTablesRequestParam:
                         search_dict[col.data] = col.search_value if col.search_value else self.search_value
                 else:
                     search_dict[col.data + '__startswith'] = col.search_value if col.search_value else self.search_value
-        return search_dict
+        q = reduce(lambda q1, q2: q1 | q2, [Q(**{it[0]: it[1]}) for it in search_dict.items()], Q())
+        # q = reduce(lambda q1, q2: q1 | q2,
+        #            map(lambda d: Q(**d), map(lambda it: {it[0]: it[1]}, params.get_search().items())), Q())
+        return q
 
     def __parse_column_and_order(self, request: HttpRequest):
         """解析列参数"""
@@ -75,12 +81,7 @@ class BaseDataTablesRequestParam:
         search_regex: bool = None
 
         def __setattr__(self, key, value):
-            if 'true' == value:
-                value = True
-            elif 'false' == value:
-                value = False
-
-            self.__dict__[key] = value
+            self.__dict__[key] = utils.str_to_bool(value)
 
         def __str__(self):
             return 'Column{data=%s, name=%s, searchable=%s, orderable=%s, search_value=%s, search_regex=%s}' \
