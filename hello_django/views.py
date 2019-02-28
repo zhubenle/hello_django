@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods, require_POST
 
 from hello_django.costant import GET, POST
-from hello_django.error import LoginError
+from hello_django.exception import LoginError
 from hello_django.request import LoginRequestParam
 from hello_django.service import LoginService
 

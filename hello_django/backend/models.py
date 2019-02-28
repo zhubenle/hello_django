@@ -71,9 +71,7 @@ class UserRole(models.Model):
     id = models.AutoField(verbose_name='自增主键', primary_key=True)
     user = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
     role = models.ForeignKey(to=Role, on_delete=models.DO_NOTHING)
-    update_time = models.DateTimeField(verbose_name='更新时间')
     create_time = models.DateTimeField(verbose_name='入库时间', db_index=True)
-    del_status = models.BooleanField(verbose_name='删除状态，1-删除， 0-未删除', default=0)
 
     class Meta:
         db_table = 'user_role'
@@ -85,9 +83,7 @@ class RoleMenu(models.Model):
     id = models.AutoField(verbose_name='自增主键', primary_key=True)
     role = models.ForeignKey(to=Role, on_delete=models.DO_NOTHING)
     menu = models.ForeignKey(to=Menu, on_delete=models.DO_NOTHING)
-    update_time = models.DateTimeField(verbose_name='更新时间')
     create_time = models.DateTimeField(verbose_name='入库时间', db_index=True)
-    del_status = models.BooleanField(verbose_name='删除状态，1-删除， 0-未删除', default=0)
 
     class Meta:
         db_table = 'role_menu'

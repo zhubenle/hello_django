@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.http import HttpRequest
 
 from hello_django import utils
-from hello_django.error import LoginError
+from hello_django.exception import LoginError
 from hello_django.response import CODE_10001
 
 
@@ -14,7 +14,7 @@ class BaseDataTablesRequestParam:
 
     def __init__(self, request: HttpRequest):
         self.request = request
-        self.draw = int(request.POST.get(key='draw'))
+        self.draw = request.POST.get(key='draw')
         self.page_size = int(request.POST.get(key='length', default=10))
         self.page_no = int(request.POST.get(key='start', default=0)) / self.page_size + 1
         self.search_value = request.POST.get(key='search[value]')
@@ -25,8 +25,11 @@ class BaseDataTablesRequestParam:
 
     def get_order(self):
         """获取组装的排序字段元组"""
-        return tuple(map(lambda order: (order.dir.replace('asc', '').replace('desc', '-') +
-                                        self.columns[order.column].data), self.orders))
+        order_t = tuple(map(lambda order: (order.dir.replace('asc', '').replace('desc', '-') +
+                                         self.columns[order.column].data), self.orders))
+        if not order_t:
+            order_t = ('-id',)
+        return order_t
 
     def get_search_q(self):
         """获取搜索条件Q()"""

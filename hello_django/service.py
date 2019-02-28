@@ -8,7 +8,7 @@ from django.utils import timezone
 from hello_django import utils
 from hello_django.backend.vos import MenuVO
 from hello_django.costant import SESSION_USER_KEY, SESSION_EXPIRY_TIMES, SESSION_MENUS_KEY
-from hello_django.error import LoginError
+from hello_django.exception import LoginError
 from hello_django.response import CODE_10002, CODE_10003
 from hello_django.request import LoginRequestParam
 from hello_django.backend.models import User, Menu
@@ -47,8 +47,7 @@ class LoginService:
 
         logger.info('backend %s login success', user.username)
         menus = Menu.objects.filter(del_status=0, rolemenu__role__userrole__user=user,
-                                    rolemenu__del_status=0, rolemenu__role__del_status=0,
-                                    rolemenu__role__userrole__del_status=0).order_by('-sort')
+                                    rolemenu__role__del_status=0).order_by('-sort')
 
         session.clear_expired()
         session.set_expiry(SESSION_EXPIRY_TIMES)

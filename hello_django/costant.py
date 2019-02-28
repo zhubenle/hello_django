@@ -11,4 +11,3 @@ SESSION_EXPIRY_TIMES = 3600 * 1
 BD_USERS_KEY = 'bk_users'
 BD_ROLES_KEY = 'bk_roles'
 BD_MENUS_KEY = 'bk_menus'
-

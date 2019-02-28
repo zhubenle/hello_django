@@ -2,7 +2,8 @@ import json
 
 from django.contrib.sessions.backends.base import SessionBase
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, Http404, HttpResponseServerError
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, Http404, HttpResponseServerError, \
+    HttpResponseForbidden, HttpResponseNotAllowed
 
 from hello_django import utils
 from hello_django.backend.models import User
@@ -26,10 +27,19 @@ class LoginMiddleware:
         except Exception as e:
             if session_user is not None:
                 if isinstance(e, PermissionDenied):
+                    if request.is_ajax():
+                        return HttpResponseForbidden()
+
                     return HttpResponseRedirect(redirect_to='/403/')
+
+                if request.is_ajax():
+                    return HttpResponseServerError()
 
                 return HttpResponseRedirect(redirect_to='/500/')
             else:
+                if request.is_ajax():
+                    return HttpResponseForbidden()
+
                 return HttpResponseRedirect(redirect_to='/index/')
 
     def __auth(self, path: str, session_user: User, session: SessionBase, request: HttpRequest):

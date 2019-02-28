@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     {% extends 'base.html' %}
     {% load staticfiles %}
-    {% block block_title %}
+    {% block css_up %}
         <link rel="stylesheet" href="{% static 'datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    {% endblock %}
+    {% block block_title %}
         <title>角色列表</title>
     {% endblock %}
 </head>
@@ -64,7 +66,7 @@
                 },
                 searchDelay: 2000,
                 ajax: {
-                    url: '{% url 'url-backend-ajax-roles' %}',
+                    url: '{% url 'url-backend-ajax-page-roles' %}',
                     type: 'POST',
                     data: {'csrfmiddlewaretoken': csrfToken},
                     dataFilter: function (resp) {

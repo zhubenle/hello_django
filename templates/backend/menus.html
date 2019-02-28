@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     {% extends 'base.html' %}
     {% load staticfiles %}
-    {% block block_title %}
+    {% block css_up %}
         <link rel="stylesheet" href="{% static 'datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    {% endblock %}
+    {% block block_title %}
         <title>菜单列表</title>
     {% endblock %}
 </head>
@@ -69,7 +71,7 @@
                 },
                 searchDelay: 2000,
                 ajax: {
-                    url: '{% url 'url-backend-ajax-menus' %}',
+                    url: '{% url 'url-backend-ajax-page-menus' %}',
                     type: 'POST',
                     data: {'csrfmiddlewaretoken': csrfToken},
                     dataFilter: function (resp) {
@@ -89,7 +91,13 @@
                     {data: 'title'},
                     {data: 'url'},
                     {data: 'icon_class', searchable: false},
-                    {data: 'show'},
+                    {
+                        data: 'show',
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            let style = cellData ? 'label-info' : 'label-default';
+                            $(td).html('<lable class="label ' + style + '">' + cellData + '</lable>');
+                        }
+                    },
                     {data: 'sort', searchable: false},
                     {data: 'update_time', searchable: false},
                     {data: 'create_time', searchable: false},
@@ -97,7 +105,7 @@
                         data: 'del_status',
                         searchable: false,
                         createdCell: function (td, cellData, rowData, row, col) {
-                            let style = cellData ? 'label-danger' : 'label-info';
+                            let style = cellData ? 'label-danger' : 'label-success';
                             $(td).html('<lable class="label ' + style + '">' + cellData + '</lable>');
                         }
                     }

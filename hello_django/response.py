@@ -1,5 +1,3 @@
-# from hello_django.error import BaseError
-
 
 class Code:
     """状态码"""
@@ -17,7 +15,7 @@ class Resp:
         self.msg = CODE_10000.msg
         self.data = None
 
-    def success(self, data):
+    def success(self, data=None):
         self.data = data
         return self
 
@@ -26,14 +24,22 @@ class Resp:
         self.msg = code.msg
         return self
 
-    # def fail_error(self, error: BaseError):
-    #     self.code = error.code.code
-    #     self.msg = error.code.msg
-    #     return self
+    def fail_error(self, error):
+        self.code = error.code
+        self.msg = error.msg
+        return self
 
 
 CODE_10000 = Code(10000, 'success')
+
 CODE_10001 = Code(10001, 'parameter can not be empty')
 CODE_10002 = Code(10002, 'username can not be found')
-CODE_10003 = Code(10002, 'password is error')
+CODE_10003 = Code(10003, 'password is error')
+CODE_10004 = Code(10004, 'username invalid format')
+CODE_10005 = Code(10005, 'password invalid format')
+CODE_10006 = Code(10006, 'real_name invalid format')
+CODE_10007 = Code(10007, 'email invalid format')
+CODE_10008 = Code(10008, 'phone invalid format')
+CODE_10009 = Code(10009, 'role can not be empty')
+
 CODE_99999 = Code(99999, 'server error')

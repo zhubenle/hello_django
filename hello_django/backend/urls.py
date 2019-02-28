@@ -6,7 +6,9 @@ urlpatterns = [
     path('users/', views.to_users, name='url-backend-users'),
     path('roles/', views.to_roles, name='url-backend-roles'),
     path('menus/', views.to_menus, name='url-backend-menus'),
-    path('ajax/users/', views.ajax_obtain_users, name='url-backend-ajax-users'),
-    path('ajax/roles/', views.ajax_obtain_roles, name='url-backend-ajax-roles'),
-    path('ajax/menus/', views.ajax_obtain_menus, name='url-backend-ajax-menus'),
+    path('ajax/page/users/', views.ajax_obtain_page_users, name='url-backend-ajax-page-users'),
+    path('ajax/page/roles/', views.ajax_obtain_page_roles, name='url-backend-ajax-page-roles'),
+    path('ajax/page/menus/', views.ajax_obtain_page_menus, name='url-backend-ajax-page-menus'),
+    path('ajax/add/user/', views.ajax_add_user, name='url-backend-ajax-add-user'),
+    path('ajax/update/user/', views.ajax_update_user, name='url-backend-ajax-update-user'),
 ]
