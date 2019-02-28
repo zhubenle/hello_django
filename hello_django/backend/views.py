@@ -10,7 +10,6 @@ from hello_django.backend.service import BdUserService, BdRoleService, BdMenuSer
 from hello_django.exception import BaseError
 from hello_django.response import Resp, CODE_99999
 from hello_django.utils import CustomerEncoder
-from .models import User
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +35,26 @@ def ajax_obtain_page_users(request: HttpRequest):
         result = BdUserService().obtain_page_users(params=UsersRequestParam(request))
         resp.success(data=result)
     except BaseError as e:
-        logger.error('obtain page users_obj fail: %s', e)
+        logger.error('obtain page users fail: %s', e)
         resp.fail_error(e)
     except Exception as e:
-        logger.error('obtain page users_obj error: %s', e)
+        logger.error('obtain page users error: %s', e)
+        resp.fail(CODE_99999)
+    return JsonResponse(utils.obj_to_dict(resp), encoder=CustomerEncoder)
+
+
+@require_POST
+def ajax_obtain_user(request: HttpRequest):
+    """获取单个用户数据"""
+    resp = Resp()
+    try:
+        result = BdUserService().obtain_user(params=UserRequestParam(request))
+        resp.success(data=result)
+    except BaseError as e:
+        logger.error('obtain user fail: %s', e)
+        resp.fail_error(e)
+    except Exception as e:
+        logger.error('obtain user error: %s', e)
         resp.fail(CODE_99999)
     return JsonResponse(utils.obj_to_dict(resp), encoder=CustomerEncoder)
 

@@ -2,6 +2,7 @@ import logging
 
 from hello_django import utils
 from hello_django.backend.vos import MenuVO
+from hello_django.regex_pattern import PT_EMAIL
 
 
 def test_str_format():
@@ -72,5 +73,9 @@ def test_bool():
     print(type(True))
 
 
+def test_re():
+    print(not PT_EMAIL.match('zhubenle@gmail.'))
+
+
 if __name__ == '__main__':
-    d = {'a': 1, 'b': 2}
+    test_re()

@@ -1,4 +1,5 @@
 from django.urls import path
+
 from hello_django.backend import views
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('ajax/page/menus/', views.ajax_obtain_page_menus, name='url-backend-ajax-page-menus'),
     path('ajax/add/user/', views.ajax_add_user, name='url-backend-ajax-add-user'),
     path('ajax/update/user/', views.ajax_update_user, name='url-backend-ajax-update-user'),
+    path('ajax/obtain/user/', views.ajax_obtain_user, name='url-backend-ajax-obtain-user'),
 ]

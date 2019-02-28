@@ -2,9 +2,9 @@ from django.http import HttpRequest
 
 from hello_django import utils
 from hello_django.exception import ParamError
-from hello_django.regex_pattern import PT_PHONE, PT_EMAIL
+from hello_django.regex_pattern import PT_PHONE, PT_EMAIL, PT_USERNAME, PT_PASSWORD, PT_REAL_NAME
 from hello_django.request import BaseDataTablesRequestParam
-from hello_django.response import CODE_10001, CODE_10004, CODE_10005, CODE_10006, CODE_10007, CODE_10008, CODE_10009
+from hello_django.response import CODE_10004, CODE_10005, CODE_10006, CODE_10007, CODE_10008, CODE_10009
 
 
 class UsersRequestParam(BaseDataTablesRequestParam):
@@ -18,7 +18,7 @@ class UserRequestParam:
     """用户操作请求参数"""
 
     def __init__(self, request: HttpRequest):
-        self.id: str = request.POST.get(key='id')
+        self.id: int = request.POST.get(key='id', default=None)
         self.username: str = str.strip(request.POST.get(key='username', default=''))
         self.password: str = str.strip(request.POST.get(key='password', default=''))
         self.real_name: str = str.strip(request.POST.get(key='real_name', default=''))
@@ -28,46 +28,45 @@ class UserRequestParam:
         self.roles: list = request.POST.get(key='roles', default='').split(',')
 
     def validate(self):
-        if not self.username or len(self.username) < 8 or len(self.username) > 20:
+        if not PT_USERNAME.match(self.username):
             raise ParamError(CODE_10004)
 
-        if not self.password or len(self.password) < 8 or len(self.password) > 32:
+        if not PT_PASSWORD.match(self.password):
             raise ParamError(CODE_10005)
 
-        if not self.real_name or len(self.real_name) > 20:
+        if not PT_REAL_NAME.match(self.real_name):
             raise ParamError(CODE_10006)
 
-        if not self.email or len(self.email) > 32 or not PT_EMAIL.match(self.email):
+        if not PT_EMAIL.match(self.email) or len(self.email) > 64:
             raise ParamError(CODE_10007)
 
-        if not self.phone or not PT_PHONE.match(self.phone):
+        if not PT_PHONE.match(self.phone):
             raise ParamError(CODE_10008)
 
         if not self.roles:
             raise ParamError(CODE_10009)
 
     def obtain_dict(self):
-        update_dict = {}
+        obj_dict = {}
         if self.username:
-            update_dict['username'] = self.username
+            obj_dict['username'] = self.username
 
         if self.password:
-            update_dict['password'] = self.password
+            obj_dict['password'] = self.password
 
         if self.real_name:
-            update_dict['real_name'] = self.real_name
+            obj_dict['real_name'] = self.real_name
 
         if self.email:
-            update_dict['email'] = self.email
+            obj_dict['email'] = self.email
 
         if self.phone:
-            update_dict['phone'] = self.phone
+            obj_dict['phone'] = self.phone
 
         if self.del_status is not None:
-            update_dict['del_status'] = self.del_status
+            obj_dict['del_status'] = self.del_status
 
-        return update_dict
-
+        return obj_dict
 
 
 class RolesRequestParam(BaseDataTablesRequestParam):

@@ -1,10 +1,39 @@
 let users_obj = {
     csrfToken: $("[name=csrfmiddlewaretoken]").val(),
-    url_page_users: $('#url_page_users').val(),
-    url_page_roles: $('#url_page_roles').val(),
-    url_add_user: $('#url_add_user').val(),
-    url_update_user: $('#url_update_user').val(),
+    urlPageUsers: $('#url_page_users').val(),
+    urlPageRoles: $('#url_page_roles').val(),
+    urlAddUser: $('#url_add_user').val(),
+    urlUpdateUser: $('#url_update_user').val(),
+    urlObtainUser: $('#url_obtain_user').val(),
     tableUsers: null,
+
+    usernameRegex: new RegExp('[a-zA-Z0-9_]{8,20}'),
+    passwordRegex: new RegExp('\\S{8,32}'),
+    realNameRegex: new RegExp('\\S{2,}'),
+    emailRegex: new RegExp('^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$'),
+    phoneRegex: new RegExp('^1[34578]\\d{9}$'),
+
+    addInputUsername: $('#add_input_username'),
+    addInputPassword: $('#add_input_password'),
+    addInputCfmPassword: $('#add_input_cfm_password'),
+    addInputRealName: $('#add_input_real_name'),
+    addInputEmail: $('#add_input_email'),
+    addInputPhone: $('#add_input_phone'),
+    addSelectRoles: $('#add_select_roles'),
+    modalAdd: $('#modal_add'),
+    addSelectRolesSelect2: null,
+
+    editInputUsername: $('#edit_input_username'),
+    editInputPassword: $('#edit_input_password'),
+    editInputCfmPassword: $('#edit_input_cfm_password'),
+    editInputRealName: $('#edit_input_real_name'),
+    editInputEmail: $('#edit_input_email'),
+    editInputPhone: $('#edit_input_phone'),
+    editSelectRoles: $('#edit_select_roles'),
+    modalEdit: $('#modal_edit'),
+    editSelectRolesSelect2: null,
+    editUserId: null,
+
     init: function (_opt) {
         users_obj.tableUsers = $('#table_users').DataTable({
             serverSide: true,
@@ -16,7 +45,7 @@ let users_obj = {
             },
             searchDelay: 2000,
             ajax: {
-                url: users_obj.url_page_users,
+                url: users_obj.urlPageUsers,
                 type: 'POST',
                 data: {csrfmiddlewaretoken: users_obj.csrfToken},
                 dataFilter: function (resp) {
@@ -28,13 +57,7 @@ let users_obj = {
                 }
             },
             createdRow: function (tr, data, dataIndex, tds) {
-                let append_html = '<td><button class="btn btn-primary btn-sm" onclick="users_obj.edit_user(' + data.id + ')">Edit</button> ';
-                if (data.del_status) {
-                    append_html += '<button class="btn btn-warning btn-sm" onclick="users_obj.enable_user(' + data.id + ')">Enable</button>';
-                } else {
-                    append_html += '<button class="btn btn-danger btn-sm" onclick="users_obj.disable_user(' + data.id + ')">Disable</button>';
-                }
-                append_html += '</td>';
+                let append_html = '<td><button class="btn btn-primary btn-sm" onclick="users_obj.show_edit_modal(' + data.id + ', this)">Edit User</button></td>';
                 $(tr).append(append_html);
             },
             columns: [
@@ -57,25 +80,15 @@ let users_obj = {
                 }
             ],
         });
-        //------------add user start------------
-        let add_input_username = $('#add_input_username');
-        let add_input_password = $('#add_input_password');
-        let add_input_cfm_password = $('#add_input_cfm_password');
-        let add_input_real_name = $('#add_input_real_name');
-        let add_input_email = $('#add_input_email');
-        let add_input_phone = $('#add_input_phone');
-        let add_select_roles = $('#add_select_roles');
-        let btn_model_add_user = $('#btn_model_add_user');
-        let modal_add = $('#modal_add');
-        let btn_modal_add_submit = $('#btn_modal_add_submit');
 
-        let add_select_roles_select2 = add_select_roles.select2({
+        let rolesSelect2Option = {
             placeholder: 'Select roles',
-            maximumSelectionLength: 3,
+            maximumSelectionLength: 2,
             delay: 300,
             allowClear: true,
+            cache: true,
             ajax: {
-                url: users_obj.url_page_roles,
+                url: users_obj.urlPageRoles,
                 method: 'POST',
                 dataType: 'JSON',
                 data: function (params) {
@@ -103,167 +116,261 @@ let users_obj = {
                     }
                 }
             }
+        };
+
+        users_obj.addSelectRolesSelect2 = users_obj.addSelectRoles.select2(rolesSelect2Option);
+
+
+        users_obj.modalAdd.on('hidden.bs.modal', function (e) {
+            users_obj.add_clear();
         });
 
-        function add_clear() {
-            //清空添加模态框中的数据
-            add_input_username.val('');
-            add_input_password.val('');
-            add_input_cfm_password.val('');
-            add_input_real_name.val('');
-            add_input_email.val('');
-            add_input_phone.val('');
-            add_select_roles_select2.val(null).trigger('change');
-            modal_add.find('.form-group').removeClass('has-error').removeClass('has-success')
-                .find('span > i').removeClass('fa-times').removeClass('fa-check')
+        users_obj.editSelectRolesSelect2 = users_obj.editSelectRoles.select2(rolesSelect2Option);
+
+        users_obj.modalEdit.on('hidden.bs.modal', function (e) {
+            users_obj.edit_clear();
+        });
+    },
+    add_validate: function () {
+        //验证添加用户或者编辑用户时输入的表单数据
+        let is_submit = true;
+        let username = users_obj.addInputUsername.val();
+        if (!users_obj.usernameRegex.test(username)) {
+            users_obj.addInputUsername.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
         }
-
-        modal_add.on('hidden.bs.modal', function (e) {
-            add_clear();
-        });
-
-        btn_modal_add_submit.on('click', function () {
-            let is_submit = true;
-            let username = $.trim(add_input_username.val());
-            if (!username || username.length < 8 || username.length > 20) {
-                add_input_username.parents('.form-group').addClass('has-error')
-                    .find('span > i').addClass('fa-times');
-                is_submit = false;
-            }
-            let password = $.trim(add_input_password.val());
-            if (!password || password.length < 8 || password.length > 32) {
-                add_input_password.parents('.form-group').addClass('has-error')
-                    .find('span > i').addClass('fa-times');
-                is_submit = false;
-            }
-            let cfm_password = $.trim(add_input_cfm_password.val());
-            if (cfm_password !== password) {
-                add_input_cfm_password.parents('.form-group').addClass('has-error')
-                    .find('span > i').addClass('fa-times');
-                is_submit = false;
-            }
-            let real_name = $.trim(add_input_real_name.val());
-            if (!real_name || real_name.length > 20) {
-                add_input_real_name.parents('.form-group').addClass('has-error')
-                    .find('span > i').addClass('fa-times');
-                is_submit = false;
-            }
-            let email = $.trim(add_input_email.val());
-            if (!email || email.length > 32) {
-                add_input_email.parents('.form-group').addClass('has-error')
-                    .find('span > i').addClass('fa-times');
-                is_submit = false;
-            }
-            let phone = $.trim(add_input_phone.val());
-            if (!phone || phone.length > 32) {
-                add_input_phone.parents('.form-group').addClass('has-error')
-                    .find('span > i').addClass('fa-times');
-                is_submit = false;
-            }
-            let roles = add_select_roles_select2.val();
-            if (!roles || roles.length < 1) {
-                add_select_roles.parents('.form-group').addClass('has-error')
-                    .find('span > i').addClass('fa-times');
-                is_submit = false;
-            }
-            if (is_submit) {
-                $.ajax(users_obj.url_add_user, {
-                    method: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        csrfmiddlewaretoken: users_obj.csrfToken,
-                        username: username,
-                        password: password,
-                        real_name: real_name,
-                        email: email,
-                        phone: phone,
-                        roles: roles.join(',')
-                    },
-                    success: function (resp) {
-                        if (resp.code === 10000) {
-                            modal_add.modal('hide');
-                            swal('Success', 'User add success', 'success').then(function () {
-                                users_obj.tableUsers.draw();
-                            });
-                        } else {
-                            swal('Fail', 'User add fail: ' + resp.msg, 'error')
-                        }
-                    },
-                    error: function (xhr, ts, et) {
-                        swal('Fail', 'User add error: ' + et, 'error');
-                    }
-                });
-            }
-        });
-        //------------add user end------------
+        let password = users_obj.addInputPassword.val();
+        if (!users_obj.passwordRegex.test(password)) {
+            users_obj.addInputPassword.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let cfm_password = users_obj.addInputCfmPassword.val();
+        if (cfm_password !== password) {
+            users_obj.addInputCfmPassword.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let real_name = users_obj.addInputRealName.val();
+        if (!users_obj.realNameRegex.test(real_name)) {
+            users_obj.addInputRealName.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let email = users_obj.addInputEmail.val();
+        if (email.length > 64 || !users_obj.emailRegex.test(email)) {
+            users_obj.addInputEmail.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let phone = users_obj.addInputPhone.val();
+        if (!users_obj.phoneRegex.test(phone)) {
+            users_obj.addInputPhone.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let roles = users_obj.addSelectRolesSelect2.val();
+        if (!roles || roles.length < 1) {
+            users_obj.addSelectRoles.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        return {
+            is_submit: is_submit,
+            username: username,
+            password: password,
+            real_name: real_name,
+            email: email,
+            phone: phone,
+            roles: roles,
+        };
     },
-    disable_user: function (id) {
-        swal({
-            title: 'Are you sure?',
-            text: 'You are disabling user! the id is ' + id,
-            icon: 'warning',
-            buttons: true,
-            dangerMode: true,
-        }).then(function (will_disable) {
-            if (will_disable) {
-                $.ajax(users_obj.url_update_user, {
-                    method: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        csrfmiddlewaretoken: users_obj.csrfToken,
-                        id: id,
-                        del_status: true
-                    },
-                    success: function (resp) {
-                        if (resp.code === 10000) {
-                            swal('Success', 'User disable success', 'success').then(function () {
-                                users_obj.tableUsers.draw();
-                            });
-                        } else {
-                            swal('Fail', 'User disable fail: ' + resp.msg, 'error')
-                        }
-                    },
-                    error: function (xhr, ts, et) {
-                        swal('Fail', 'User disable error: ' + et, 'error');
+    add_user: function () {
+        //添加用户
+        let result = users_obj.add_validate();
+        if (result.is_submit) {
+            $.ajax(users_obj.urlAddUser, {
+                method: 'POST',
+                dataType: 'JSON',
+                data: {
+                    csrfmiddlewaretoken: users_obj.csrfToken,
+                    username: result.username,
+                    password: result.password,
+                    real_name: result.real_name,
+                    email: result.email,
+                    phone: result.phone,
+                    roles: result.roles.join(',')
+                },
+                success: function (resp) {
+                    if (resp.code === 10000) {
+                        users_obj.modalAdd.modal('hide');
+                        swal('Success', 'User add success', 'success').then(function () {
+                            users_obj.tableUsers.draw();
+                        });
+                    } else {
+                        swal('Fail', 'User add fail: ' + resp.msg, 'error')
                     }
-                })
-            }
-        });
+                },
+                error: function (xhr, ts, et) {
+                    swal('Fail', 'User add error: ' + et, 'error');
+                }
+            });
+        }
     },
-    enable_user: function (id) {
-        swal({
-            title: 'Are you sure?',
-            text: 'You are enabling user! the id is ' + id,
-            icon: 'warning',
-            buttons: true,
-            dangerMode: true,
-        }).then(function (will_enable) {
-            if (will_enable) {
-                $.ajax(users_obj.url_update_user, {
-                    method: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        csrfmiddlewaretoken: users_obj.csrfToken,
-                        id: id,
-                        del_status: false
-                    },
-                    success: function (resp) {
-                        if (resp.code === 10000) {
-                            swal('Success', 'User enable success', 'success').then(function () {
-                                users_obj.tableUsers.draw();
-                            });
-                        } else {
-                            swal('Fail', 'User enable fail: ' + resp.msg, 'error')
-                        }
-                    },
-                    error: function (xhr, ts, et) {
-                        swal('Fail', 'User enable error: ' + et, 'error');
-                    }
-                })
+    add_clear: function () {
+        //清空添加模态框中的数据
+        users_obj.addInputUsername.val('');
+        users_obj.addInputPassword.val('');
+        users_obj.addInputCfmPassword.val('');
+        users_obj.addInputRealName.val('');
+        users_obj.addInputEmail.val('');
+        users_obj.addInputPhone.val('');
+        users_obj.addSelectRolesSelect2.val(null).trigger('change');
+        users_obj.modalAdd.find('.form-group').removeClass('has-error').removeClass('has-success')
+            .find('span > i').removeClass('fa-times').removeClass('fa-check')
+    },
+    show_edit_modal: function (id, btn) {
+        //显示编辑用户的modal
+        $(btn).attr('disabled', 'disabled');
+        users_obj.editUserId = id;
+
+        $.ajax(users_obj.urlObtainUser, {
+            method: 'POST',
+            dataType: 'JSON',
+            data: {
+                csrfmiddlewaretoken: users_obj.csrfToken,
+                id: id
+            },
+            success: function (resp) {
+                if (resp.code === 10000) {
+                    users_obj.editInputUsername.val(resp.data.username);
+                    users_obj.editInputPassword.val(resp.data.password);
+                    users_obj.editInputCfmPassword.val(resp.data.password);
+                    users_obj.editInputRealName.val(resp.data.real_name);
+                    users_obj.editInputEmail.val(resp.data.email);
+                    users_obj.editInputPhone.val(resp.data.phone);
+                    $.each(resp.data.roles, function (i, role) {
+                        users_obj.editSelectRolesSelect2.append(new Option(role.name, role.id, true, true))
+                    });
+                    users_obj.editSelectRolesSelect2.trigger('change');
+                    users_obj.modalEdit.find('input[name="del_status"][value="' + resp.data.del_status + '"]').prop('checked', true);
+                    users_obj.modalEdit.modal('show');
+                } else {
+                    swal('Fail', 'User obtain fail: ' + resp.msg, 'error')
+                }
+            },
+            error: function (xhr, ts, et) {
+                swal('Fail', 'User obtain error: ' + et, 'error');
+            },
+            complete: function () {
+                $(btn).removeAttr('disabled');
             }
         });
     },
-    edit_user: function (id) {
-
+    edit_validate: function () {
+        //验证添加用户或者编辑用户时输入的表单数据
+        let is_submit = true;
+        let username = users_obj.editInputUsername.val();
+        if (!users_obj.usernameRegex.test(username)) {
+            users_obj.editInputUsername.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let password = users_obj.editInputPassword.val();
+        if (!users_obj.passwordRegex.test(password)) {
+            users_obj.editInputPassword.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let cfm_password = users_obj.editInputCfmPassword.val();
+        if (cfm_password !== password) {
+            users_obj.editInputCfmPassword.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let real_name = users_obj.editInputRealName.val();
+        if (!users_obj.realNameRegex.test(real_name)) {
+            users_obj.editInputRealName.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let email = users_obj.editInputEmail.val();
+        if (!users_obj.emailRegex.test(email)) {
+            users_obj.editInputEmail.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let phone = users_obj.editInputPhone.val();
+        if (!users_obj.phoneRegex.test(phone)) {
+            users_obj.editInputPhone.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let roles = users_obj.editSelectRolesSelect2.val();
+        if (!roles || roles.length < 1) {
+            users_obj.editSelectRoles.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let del_status = users_obj.modalEdit.find('input[name="del_status"]:checked').val();
+        return {
+            is_submit: is_submit,
+            id: users_obj.editUserId,
+            username: username,
+            password: password,
+            real_name: real_name,
+            email: email,
+            phone: phone,
+            roles: roles,
+            del_status: del_status,
+        };
+    },
+    edit_user: function () {
+        //更新用户
+        let result = users_obj.edit_validate();
+        if (result.is_submit) {
+            $.ajax(users_obj.urlUpdateUser, {
+                method: 'POST',
+                dataType: 'JSON',
+                data: {
+                    csrfmiddlewaretoken: users_obj.csrfToken,
+                    id: result.id,
+                    username: result.username,
+                    password: result.password,
+                    real_name: result.real_name,
+                    email: result.email,
+                    phone: result.phone,
+                    roles: result.roles.join(','),
+                    del_status: result.del_status
+                },
+                success: function (resp) {
+                    if (resp.code === 10000) {
+                        users_obj.modalEdit.modal('hide');
+                        swal('Success', 'User edit success', 'success').then(function () {
+                            users_obj.tableUsers.draw();
+                        });
+                    } else {
+                        swal('Fail', 'User edit fail: ' + resp.msg, 'error')
+                    }
+                },
+                error: function (xhr, ts, et) {
+                    swal('Fail', 'User edit error: ' + et, 'error');
+                }
+            });
+        }
+    },
+    edit_clear: function () {
+        //清空编辑模态框中的数据
+        users_obj.editInputUsername.val('');
+        users_obj.editInputPassword.val('');
+        users_obj.editInputCfmPassword.val('');
+        users_obj.editInputRealName.val('');
+        users_obj.editInputEmail.val('');
+        users_obj.editInputPhone.val('');
+        users_obj.editSelectRolesSelect2.val(null).trigger('change');
+        users_obj.modalEdit.find('.form-group').removeClass('has-error').removeClass('has-success')
+            .find('span > i').removeClass('fa-times').removeClass('fa-check');
+        users_obj.modalEdit.find('input[name="del_status"]').removeProp('checked');
     }
 };

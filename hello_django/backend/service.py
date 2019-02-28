@@ -8,7 +8,7 @@ from hello_django.backend.models import User, Role, Menu, UserRole
 from hello_django.backend.request import UsersRequestParam, RolesRequestParam, MenusRequestParam, UserRequestParam
 from hello_django.backend.vos import UserVO, RoleVO, MenuVO
 from hello_django.exception import ParamError
-from hello_django.response import CODE_10001
+from hello_django.response import CODE_10001, CODE_10010
 
 logger = logging.getLogger(__name__)
 
@@ -32,14 +32,22 @@ class BdUserService:
         paginator = Paginator(users, params.page_size)
         return utils.format_page_data(paginator, params, convert_func=lambda obj: UserVO(user=obj))
 
-    def obtain_user(self, **kwargs):
+    def obtain_user(self, params: UserRequestParam):
         """
         获取单个用户
-        :param kwargs:
+        :param params:
         :return:
         """
-        user = User.objects.filter(**kwargs).first()
-        return UserVO(user=user) if not user else None
+        query_dict: dict = params.obtain_dict()
+        if params.id:
+            query_dict['id'] = params.id
+        user = User.objects.filter(**query_dict).first()
+        if not user:
+            raise ParamError(CODE_10010)
+        user_vo = UserVO(user=user)
+        roles = Role.objects.filter(del_status=False, userrole__user_id=user_vo.id)
+        user_vo.roles = utils.objs_to_dicts(roles, lambda obj: RoleVO(role=obj))
+        return utils.obj_to_dict(user_vo)
 
     def add_user(self, params: UserRequestParam):
         """
@@ -58,6 +66,9 @@ class BdUserService:
         for role_id in params.roles:
             UserRole.objects.create(user=user, role_id=role_id, create_time=now)
 
+        return utils.obj_to_dict(user, lambda obj: UserVO(user=obj))
+
+
     def update_user(self, params: UserRequestParam):
         """
         更新用户
@@ -66,7 +77,7 @@ class BdUserService:
         """
         update_dict: dict = params.obtain_dict()
 
-        if not params.id or len(update_dict) < 1:
+        if not params.id or not update_dict:
             raise ParamError(CODE_10001)
 
         now = timezone.now()

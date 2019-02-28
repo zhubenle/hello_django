@@ -42,4 +42,8 @@ CODE_10007 = Code(10007, 'email invalid format')
 CODE_10008 = Code(10008, 'phone invalid format')
 CODE_10009 = Code(10009, 'role can not be empty')
 
+CODE_10010 = Code(10010, 'User can not be found')
+CODE_10011 = Code(10011, 'Role can not be found')
+CODE_10012 = Code(10012, 'Menu can not be found')
+
 CODE_99999 = Code(99999, 'server error')

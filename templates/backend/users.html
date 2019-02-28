@@ -117,7 +117,7 @@
                                 <label for="add_input_phone" class="col-sm-3 control-label">Phone</label>
                                 <div class="col-sm-7">
                                     <input type="text" class="form-control" id="add_input_phone" placeholder="Phone"
-                                           autocomplete="off" maxlength="11">
+                                           autocomplete="off" maxlength="11" oninput="value=value.replace(/[^\d]/g,'')">
                                 </div>
                                 <span class="col-sm-1 help-block"><i class="fa"></i></span>
                             </div>
@@ -135,7 +135,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button id="btn_modal_add_submit" type="button" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-primary" onclick="users_obj.add_user()">Submit</button>
                 </div>
             </div>
         </div>
@@ -198,7 +198,7 @@
                                 <label for="edit_input_phone" class="col-sm-3 control-label">Phone</label>
                                 <div class="col-sm-7">
                                     <input type="text" class="form-control" id="edit_input_phone" placeholder="Phone"
-                                           autocomplete="off" maxlength="11">
+                                           autocomplete="off" maxlength="11" oninput="value=value.replace(/[^\d]/g,'')">
                                 </div>
                                 <span class="col-sm-1 help-block"><i class="fa"></i></span>
                             </div>
@@ -211,12 +211,29 @@
                                 </div>
                                 <span class="col-sm-1 help-block"><i class="fa"></i></span>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Del Status</label>
+                                <div class="col-sm-7">
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input type="radio" name="del_status" value="false">
+                                            false
+                                        </label>
+                                    </div>
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input type="radio" name="del_status" value="true">
+                                            true
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button id="btn_modal_edit_submit" type="button" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-primary" onclick="users_obj.edit_user()">Submit</button>
                 </div>
             </div>
         </div>
@@ -226,12 +243,13 @@
     <input type="hidden" id="url_page_roles" value="{% url 'url-backend-ajax-page-roles' %}">
     <input type="hidden" id="url_add_user" value="{% url 'url-backend-ajax-add-user' %}">
     <input type="hidden" id="url_update_user" value="{% url 'url-backend-ajax-update-user' %}">
+    <input type="hidden" id="url_obtain_user" value="{% url 'url-backend-ajax-obtain-user' %}">
 {% endblock %}
 {% block block_script %}
     <script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
     <script src="{% static 'select2/js/select2.full.min.js' %}"></script>
-    <script src="{% static 'js/users.js' %}" ></script>
+    <script src="{% static 'js/users.js' %}"></script>
     <script>
         $(function () {
             users_obj.init()

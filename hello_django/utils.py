@@ -114,7 +114,7 @@ def format_page_data(paginator: Paginator, params, convert_func=None):
     :return: 字典对象
     """
     page: Page = paginator.get_page(params.page_no)
-    obj_dict = objs_to_dicts(page.object_list, convert_func=convert_func)
+    obj_dicts = objs_to_dicts(page.object_list, convert_func=convert_func)
     result = {'draw': params.draw, 'recordsTotal': paginator.count, 'recordsFiltered': paginator.count,
-              'data': obj_dict}
+              'data': obj_dicts}
     return result
