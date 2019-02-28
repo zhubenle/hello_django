@@ -68,7 +68,6 @@ class BdUserService:
 
         return utils.obj_to_dict(user, lambda obj: UserVO(user=obj))
 
-
     def update_user(self, params: UserRequestParam):
         """
         更新用户
