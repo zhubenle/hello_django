@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     {% extends 'base.html' %}
     {% load staticfiles %}
-    {% block css_up %}
-        <link rel="stylesheet" href="{% static 'datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
-        <link rel="stylesheet" href="{% static 'select2/css/select2.min.css' %}">
-    {% endblock %}
     {% block block_title %}
         <title>用户列表</title>
     {% endblock %}
@@ -135,7 +131,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="users_obj.add_user()">Submit</button>
+                    <button type="button" class="btn btn-primary" onclick="users_obj.add_user(this)">Submit</button>
                 </div>
             </div>
         </div>
@@ -233,23 +229,20 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="users_obj.edit_user()">Submit</button>
+                    <button type="button" class="btn btn-primary" onclick="users_obj.edit_user(this)">Submit</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <input type="hidden" id="url_page_users" value="{% url 'url-backend-ajax-page-users' %}">
-    <input type="hidden" id="url_page_roles" value="{% url 'url-backend-ajax-page-roles' %}">
-    <input type="hidden" id="url_add_user" value="{% url 'url-backend-ajax-add-user' %}">
-    <input type="hidden" id="url_update_user" value="{% url 'url-backend-ajax-update-user' %}">
-    <input type="hidden" id="url_obtain_user" value="{% url 'url-backend-ajax-obtain-user' %}">
+    <input type="hidden" id="url_page_users" value="{% url 'url-backend-ajax-user-page' %}">
+    <input type="hidden" id="url_add_user" value="{% url 'url-backend-ajax-user-add' %}">
+    <input type="hidden" id="url_update_user" value="{% url 'url-backend-ajax-user-update' %}">
+    <input type="hidden" id="url_obtain_user" value="{% url 'url-backend-ajax-user-obtain' %}">
+    <input type="hidden" id="url_page_roles" value="{% url 'url-backend-ajax-role-page' %}">
 {% endblock %}
 {% block block_script %}
-    <script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
-    <script src="{% static 'select2/js/select2.full.min.js' %}"></script>
-    <script src="{% static 'js/users.js' %}"></script>
+    <script src="{% static 'js/bk/users.js' %}"></script>
     <script>
         $(function () {
             users_obj.init()

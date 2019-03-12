@@ -83,7 +83,7 @@ let users_obj = {
 
         let rolesSelect2Option = {
             placeholder: 'Select roles',
-            maximumSelectionLength: 2,
+            maximumSelectionLength: 1,
             delay: 300,
             allowClear: true,
             cache: true,
@@ -92,9 +92,14 @@ let users_obj = {
                 method: 'POST',
                 dataType: 'JSON',
                 data: function (params) {
+                    let start = (params.page ? params.page - 1 : 0) * 10;
+                    let term = params.term ? params.term : '';
                     return {
-                        csrfmiddlewaretoken: users_obj.csrfToken,
-                        page_no: params.page || 1
+                        start: start,
+                        'columns[1][data]': 'name',
+                        'columns[1][searchable]': 'true',
+                        'columns[1][search][value]': term.toUpperCase(),
+                        csrfmiddlewaretoken: users_obj.csrfToken
                     }
                 },
                 processResults: function (resp, params) {
@@ -186,10 +191,11 @@ let users_obj = {
             roles: roles,
         };
     },
-    add_user: function () {
+    add_user: function (btn) {
         //添加用户
         let result = users_obj.add_validate();
         if (result.is_submit) {
+            $(btn).attr('disabled', 'disabled');
             $.ajax(users_obj.urlAddUser, {
                 method: 'POST',
                 dataType: 'JSON',
@@ -214,6 +220,9 @@ let users_obj = {
                 },
                 error: function (xhr, ts, et) {
                     swal('Fail', 'User add error: ' + et, 'error');
+                },
+                complete: function () {
+                    $(btn).removeAttr('disabled')
                 }
             });
         }
@@ -326,10 +335,11 @@ let users_obj = {
             del_status: del_status,
         };
     },
-    edit_user: function () {
+    edit_user: function (btn) {
         //更新用户
         let result = users_obj.edit_validate();
         if (result.is_submit) {
+            $(btn).attr('disabled', 'disabled');
             $.ajax(users_obj.urlUpdateUser, {
                 method: 'POST',
                 dataType: 'JSON',
@@ -356,6 +366,9 @@ let users_obj = {
                 },
                 error: function (xhr, ts, et) {
                     swal('Fail', 'User edit error: ' + et, 'error');
+                },
+                complete: function () {
+                    $(btn).removeAttr('disabled');
                 }
             });
         }

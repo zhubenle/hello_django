@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     {% extends 'base.html' %}
     {% load staticfiles %}
-    {% block css_up %}
-        <link rel="stylesheet" href="{% static 'datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
-    {% endblock %}
     {% block block_title %}
         <title>菜单列表</title>
     {% endblock %}
@@ -28,6 +25,9 @@
         <div class="col-xs-12">
             <div class="box">
                 <div class="box-header">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_add">
+                        Add Menu
+                    </button>
                 </div>
                 <div class="box-body table-responsive">
                     <table id="table_menus" class="table table-bordered">
@@ -53,64 +53,206 @@
             </div>
         </div>
     </section>
+
+    <div class="modal fade" id="modal_add">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Add Menu</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label for="add_input_title" class="col-sm-3 control-label">Title</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="add_input_title"
+                                           placeholder="Title"
+                                           autocomplete="off" maxlength="64">
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="add_select_parent_menu" class="col-sm-3 control-label">Parent Menu</label>
+                                <div class="col-sm-7">
+                                    <select id="add_select_parent_menu" class="form-control select2"
+                                            style="width: 100%;">
+                                    </select>
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="add_input_url" class="col-sm-3 control-label">Url</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="add_input_url"
+                                           placeholder="Url"
+                                           autocomplete="off" maxlength="200">
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Show</label>
+                                <div class="col-sm-7">
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input type="radio" name="show" value="false" checked>
+                                            false
+                                        </label>
+                                    </div>
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input type="radio" name="show" value="true">
+                                            true
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="add_select_icon_class" class="col-sm-3 control-label">Icon Class</label>
+                                <div class="col-sm-7">
+                                    <select id="add_select_icon_class" class="form-control select2"
+                                            style="width: 100%;">
+                                        <option value="fa-user-circle-o">fa-user-circle-o</option>
+                                    </select>
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="add_input_sort" class="col-sm-3 control-label">Sort</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="add_input_sort"
+                                           placeholder="Sort"
+                                           autocomplete="off" maxlength="11"
+                                           oninput="value=value.replace(/[^0-9]/g, '')">
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="menus_obj.add_menu(this)">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_edit">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Edit Menu</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label for="edit_input_title" class="col-sm-3 control-label">Title</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="edit_input_title"
+                                           placeholder="Title"
+                                           autocomplete="off" maxlength="64">
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_select_parent_menu" class="col-sm-3 control-label">Parent Menu</label>
+                                <div class="col-sm-7">
+                                    <select id="edit_select_parent_menu" class="form-control select2"
+                                            style="width: 100%;">
+                                    </select>
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_input_url" class="col-sm-3 control-label">Url</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="edit_input_url"
+                                           placeholder="Url"
+                                           autocomplete="off" maxlength="200">
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Show</label>
+                                <div class="col-sm-7">
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input type="radio" name="show" value="false" checked>
+                                            false
+                                        </label>
+                                    </div>
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input type="radio" name="show" value="true">
+                                            true
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_select_icon_class" class="col-sm-3 control-label">Icon Class</label>
+                                <div class="col-sm-7">
+                                    <select id="edit_select_icon_class" class="form-control select2"
+                                            style="width: 100%;">
+                                        <option value="fa-user-circle-o">fa-user-circle-o</option>
+                                    </select>
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_input_sort" class="col-sm-3 control-label">Sort</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="edit_input_sort"
+                                           placeholder="Sort"
+                                           autocomplete="off" maxlength="11"
+                                           oninput="value=value.replace(/[^0-9]/g, '')">
+                                </div>
+                                <span class="col-sm-1 help-block"><i class="fa"></i></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Del Status</label>
+                                <div class="col-sm-7">
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input type="radio" name="del_status" value="false">
+                                            false
+                                        </label>
+                                    </div>
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input type="radio" name="del_status" value="true">
+                                            true
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="menus_obj.edit_menu(this)">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="url_page_menus" value="{% url 'url-backend-ajax-menu-page' %}">
+    <input type="hidden" id="url_add_menu" value="{% url 'url-backend-ajax-menu-add' %}">
+    <input type="hidden" id="url_update_menu" value="{% url 'url-backend-ajax-menu-update' %}">
+    <input type="hidden" id="url_obtain_menu" value="{% url 'url-backend-ajax-menu-obtain' %}">
 {% endblock %}
 {% block block_script %}
-    <script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/bk/menus.js' %}"></script>
     <script type="text/javascript">
         $(function () {
-            let csrfToken = $("[name=csrfmiddlewaretoken]").val();
-
-            $('#table_menus').DataTable({
-                serverSide: true,
-                processing: true,
-                searching: true,
-                autoWidth: false,
-                language: {
-                    lengthMenu: 'Show _MENU_'
-                },
-                searchDelay: 2000,
-                ajax: {
-                    url: '{% url 'url-backend-ajax-page-menus' %}',
-                    type: 'POST',
-                    data: {'csrfmiddlewaretoken': csrfToken},
-                    dataFilter: function (resp) {
-                        resp = $.parseJSON(resp);
-                        if (resp.code === 10000) {
-                            return JSON.stringify(resp.data);
-                        }
-                        return JSON.stringify({'error': resp.msg});
-                    }
-                },
-                createdRow: function (tr, data, dataIndex, tds) {
-                    $(tr).append('<td><button class="btn btn-primary btn-sm">编辑</></td>')
-                },
-                columns: [
-                    {data: 'id'},
-                    {data: 'parent_id'},
-                    {data: 'title'},
-                    {data: 'url'},
-                    {data: 'icon_class', searchable: false},
-                    {
-                        data: 'show',
-                        createdCell: function (td, cellData, rowData, row, col) {
-                            let style = cellData ? 'label-info' : 'label-default';
-                            $(td).html('<lable class="label ' + style + '">' + cellData + '</lable>');
-                        }
-                    },
-                    {data: 'sort', searchable: false},
-                    {data: 'update_time', searchable: false},
-                    {data: 'create_time', searchable: false},
-                    {
-                        data: 'del_status',
-                        searchable: false,
-                        createdCell: function (td, cellData, rowData, row, col) {
-                            let style = cellData ? 'label-danger' : 'label-success';
-                            $(td).html('<lable class="label ' + style + '">' + cellData + '</lable>');
-                        }
-                    }
-                ],
-            });
+            menus_obj.init();
         })
     </script>
 {% endblock %}

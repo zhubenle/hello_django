@@ -9,6 +9,8 @@
     {% block css_up %}
     {% endblock %}
     <link rel="icon" href="{% static 'custom/img/icon.png' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'select2/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'Ionicons/css/ionicons.min.css' %}">
@@ -187,6 +189,9 @@
 <script type="text/javascript" src="{% static 'plugins/pace/pace.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
 <script type="text/javascript" src="{% static 'sweetalert/js/sweetalert.min.js' %}"></script>
+<script src="{% static 'datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static 'select2/js/select2.full.min.js' %}"></script>
 <script>
     $(document).ajaxStart(function () {
         Pace.restart()

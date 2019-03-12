@@ -2,7 +2,7 @@ import logging
 
 from hello_django import utils
 from hello_django.backend.vos import MenuVO
-from hello_django.regex_pattern import PT_EMAIL
+from hello_django.regex_pattern import PT_MENU_TITLE
 
 
 def test_str_format():
@@ -74,7 +74,7 @@ def test_bool():
 
 
 def test_re():
-    print(not PT_EMAIL.match('zhubenle@gmail.'))
+    print(PT_MENU_TITLE.match('安徽'))
 
 
 if __name__ == '__main__':

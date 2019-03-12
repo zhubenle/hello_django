@@ -11,7 +11,7 @@ let meun_obj = {
                 let content =
                     '<li id="li_' + menu.id + '" class="treeview">' +
                     '<a href="#">' +
-                    '<i class="' + menu.icon_class + '"></i>' +
+                    '<i class="fa ' + menu.icon_class + '"></i>' +
                     '<span> ' + menu.title + '</span>' +
                     '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>' +
                     '</a>' +
@@ -20,7 +20,7 @@ let meun_obj = {
                 ul_menu.append(content);
             } else {
                 //表示一级菜单
-                let content = '<li id="li_' + menu.id + '" class="' + (_opt.session_select_url === menu.url ? 'active' : '') + '"><a href="' + menu.url + '"><i class="' + menu.icon_class + '"></i> <span> ' + menu.title + '</span></a></li>';
+                let content = '<li id="li_' + menu.id + '" class="' + (_opt.session_select_url === menu.url ? 'active' : '') + '"><a href="' + menu.url + '"><i class="fa ' + menu.icon_class + '"></i> <span> ' + menu.title + '</span></a></li>';
                 ul_menu.append(content);
             }
         });
@@ -33,7 +33,7 @@ let meun_obj = {
             let content =
                 '<li id="li_' + menu.id + '" class="treeview">' +
                 '<a href="#">' +
-                '<i class="' + menu.icon_class + '"></i>' +
+                '<i class="fa ' + menu.icon_class + '"></i>' +
                 '<span>' + menu.title + '</span>' +
                 '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>' +
                 '</a>' +
@@ -46,7 +46,7 @@ let meun_obj = {
             return menu.parent_id && menu.url
         }).forEach(function (menu) {
             let li_menu = $('#li_' + menu.parent_id);
-            li_menu.children('.treeview-menu').append('<li id="li_' + menu.id + '" class="' + (_opt.session_select_url === menu.url ? 'active' : '') + '"><a href="' + menu.url + '"><i class="' + menu.icon_class + '"></i> ' + menu.title + '</a></li>')
+            li_menu.children('.treeview-menu').append('<li id="li_' + menu.id + '" class="' + (_opt.session_select_url === menu.url ? 'active' : '') + '"><a href="' + menu.url + '"><i class="fa ' + menu.icon_class + '"></i> ' + menu.title + '</a></li>')
             if (_opt.session_select_url === menu.url) {
                 li_menu.addClass('active').parents('.treeview').addClass('active');
             }
