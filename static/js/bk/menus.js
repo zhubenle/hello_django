@@ -24,10 +24,12 @@ let menus_obj = {
     editSelectParentMenu: $('#edit_select_parent_menu'),
     editSelectIconClassSelect2: null,
     editSelectParentMenuSelect2: null,
-    editUserId: null,
+    editMenuId: null,
+
+    tableMenus: null,
 
     init: function () {
-        $('#table_menus').DataTable({
+        meun_obj.tableMenus = $('#table_menus').DataTable({
             serverSide: true,
             processing: true,
             searching: true,
@@ -46,6 +48,9 @@ let menus_obj = {
                         return JSON.stringify(resp.data);
                     }
                     return JSON.stringify({'error': resp.msg});
+                },
+                error: function (xhr, ts, et) {
+                    swal('Fail', 'Obtain page menu error: ' + et, 'error');
                 }
             },
             createdRow: function (tr, data, dataIndex, tds) {
@@ -213,11 +218,13 @@ let menus_obj = {
         menus_obj.modalAdd.find('input[name="show"][value="false"]').prop('checked', 'checked');
         menus_obj.addSelectIconClassSelect2.val(null).trigger('change');
         menus_obj.addSelectParentMenuSelect2.val(null).trigger('change');
+        menus_obj.modalAdd.find('.form-group').removeClass('has-error').removeClass('has-success')
+            .find('span > i').removeClass('fa-times').removeClass('fa-check');
     },
     show_edit_modal: function (id, btn) {
         //显示编辑菜单的modal
         $(btn).attr('disabled', 'disabled');
-        menus_obj.editUserId = id;
+        menus_obj.editMenuId = id;
 
         $.ajax(menus_obj.urlObtainMenu, {
             method: 'POST',
@@ -256,12 +263,82 @@ let menus_obj = {
         });
     },
     edit_menu: function (btn) {
-
+        //更新菜单
+        let param = menus_obj.edit_validate();
+        if (param.is_submit) {
+            $(btn).attr('disabled', 'disabled');
+            $.ajax(menus_obj.urlUpdateMenu, {
+                method: 'POST',
+                dataType: 'JSON',
+                data: {
+                    csrfmiddlewaretoken: menus_obj.csrfToken,
+                    id: menus_obj.editMenuId,
+                    parent_id: param.parent_id,
+                    title: param.title,
+                    url: param.url,
+                    show: param.show,
+                    sort: param.sort,
+                    icon_class: param.icon_class,
+                    del_status: param.del_status
+                },
+                success: function (resp) {
+                    if (resp.code === 10000) {
+                        menus_obj.modalEdit.modal('hide');
+                        swal('Success', 'Menu edit success', 'success').then(function () {
+                            menus_obj.table.draw();
+                        });
+                    } else {
+                        swal('Fail', 'Menu edit fail: ' + resp.msg, 'error')
+                    }
+                },
+                error: function (xhr, ts, et) {
+                    swal('Fail', 'Menu edit error: ' + et, 'error');
+                },
+                complete: function () {
+                    $(btn).removeAttr('disabled');
+                }
+            });
+        }
     },
     edit_validate: function () {
-
+        let is_submit = true;
+        let title = menus_obj.editInputTitle.val();
+        if (!menus_obj.titleRegex.test(title)) {
+            menus_obj.addInputTitle.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let url = menus_obj.editInputUrl.val();
+        if (url && !menus_obj.urlRegex.test(url)) {
+            menus_obj.addInputUrl.parents('.form-group').addClass('has-error')
+                .find('span > i').addClass('fa-times');
+            is_submit = false;
+        }
+        let parent_id = menus_obj.editSelectParentMenuSelect2.val();
+        let show = menus_obj.modalEdit.find('input[name="show"]:checked').val();
+        let iconClass = menus_obj.editSelectIconClassSelect2.val();
+        let sort = menus_obj.editInputSort.val();
+        let del_status = menus_obj.modalEdit.find('input[name="del_status"]:checked').val();
+        return {
+            is_submit: is_submit,
+            parent_id: parent_id,
+            title: title,
+            url: url,
+            show: show,
+            sort: sort,
+            icon_class: iconClass,
+            del_status: del_status,
+        };
     },
     edit_clear: function () {
-
+        menus_obj.editInputUrl.val('');
+        menus_obj.editInputTitle.val('');
+        menus_obj.editInputSort.val('');
+        menus_obj.modalEdit.find('input[name="show"][value="false"]').prop('checked', 'checked');
+        menus_obj.modalEdit.find('input[name="del_status"]').removeProp('checked');
+        menus_obj.addSelectIconClassSelect2.val(null).trigger('change');
+        menus_obj.addSelectParentMenuSelect2.val(null).trigger('change');
+        menus_obj.modalEdit.find('.form-group').removeClass('has-error').removeClass('has-success')
+            .find('span > i').removeClass('fa-times').removeClass('fa-check');
     }
 };

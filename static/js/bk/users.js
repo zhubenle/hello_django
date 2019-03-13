@@ -54,6 +54,9 @@ let users_obj = {
                         return JSON.stringify(resp.data);
                     }
                     return JSON.stringify({'error': resp.msg});
+                },
+                error: function (xhr, ts, et) {
+                    swal('Fail', 'Obtain page user error: ' + et, 'error');
                 }
             },
             createdRow: function (tr, data, dataIndex, tds) {
@@ -325,7 +328,7 @@ let users_obj = {
         let del_status = users_obj.modalEdit.find('input[name="del_status"]:checked').val();
         return {
             is_submit: is_submit,
-            id: users_obj.editUserId,
+            id: users_obj.editMenuId,
             username: username,
             password: password,
             real_name: real_name,

@@ -57,6 +57,9 @@ let roles_obj = {
                         return JSON.stringify(resp.data);
                     }
                     return JSON.stringify({'error': resp.msg});
+                },
+                error: function (xhr, ts, et) {
+                    swal('Fail', 'Obtain page role error: ' + et, 'error');
                 }
             },
             createdRow: function (tr, data, dataIndex, tds) {
@@ -273,7 +276,7 @@ let roles_obj = {
                 dataType: 'JSON',
                 data: {
                     csrfmiddlewaretoken: roles_obj.csrfToken,
-                    id: roles_obj.editUserId,
+                    id: roles_obj.editMenuId,
                     name: param.name,
                     del_status: param.del_status,
                     menus: param.menus.join(',')
